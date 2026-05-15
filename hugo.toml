@@ -1,0 +1,4 @@
+baseURL = 'https://blog.blacktail92.online/'
+locale = 'en-us'
+title = '潘多拉'
+theme = ''
