@@ -1,0 +1,47 @@
+<header class="site-header">
+  <div class="container-page flex items-center justify-between h-14">
+    {{/* Logo / Site Title */}}
+    <a href="{{ "" | relLangURL }}" class="font-bold text-lg hover:text-[var(--accent)] transition-colors" style="color:var(--text)">
+      {{ with .Site.Params.logo }}
+        <img src="{{ . | relURL }}" alt="{{ $.Site.Title }}" class="h-8">
+      {{ else }}
+        {{ .Site.Title }}
+      {{ end }}
+    </a>
+
+    {{/* Desktop Navigation */}}
+    <nav class="desktop-menu flex items-center gap-1">
+      {{ range .Site.Menus.main }}
+      <a class="nav-link" href="{{ .URL | relLangURL }}">{{ .Name }}</a>
+      {{ end }}
+      <button class="theme-toggle ml-2" id="themeToggle" aria-label="切换主题">
+        <span id="themeIcon">🌙</span>
+      </button>
+      <button class="theme-toggle ml-1" id="searchToggle" aria-label="搜索">
+        🔍
+      </button>
+    </nav>
+
+    {{/* Mobile Menu Button */}}
+    <button class="mobile-menu-btn hidden items-center text-lg p-2" id="mobileMenuBtn" aria-label="菜单" style="color:var(--text)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+
+  {{/* Mobile Menu */}}
+  <div class="mobile-menu hidden" id="mobileMenu" style="border-top:1px solid var(--border)">
+    <div class="container-page py-3 flex flex-col gap-1">
+      {{ range .Site.Menus.main }}
+      <a class="nav-link" href="{{ .URL | relLangURL }}">{{ .Name }}</a>
+      {{ end }}
+      <div class="flex gap-2 pt-2">
+        <button class="theme-toggle" id="mobileThemeToggle" aria-label="切换主题">
+          <span id="mobileThemeIcon">🌙</span>
+        </button>
+        <button class="theme-toggle" id="mobileSearchToggle" aria-label="搜索">
+          🔍
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,13 @@
+# theme.toml template for Hugo theme
+name = "Pandora"
+license = "MIT"
+licenselink = "https://github.com/example/maple/blob/main/LICENSE"
+description = "简洁优雅的博客主题，基于 Tailwind CSS，支持明暗切换、本地搜索"
+homepage = "https://github.com/example/maple"
+tags = ["blog", "clean", "minimal", "tailwind", "chinese"]
+features = ["dark mode", "search", "toc", "tags", "categories", "reading time"]
+min_version = "0.141.0"
+
+[author]
+  name = "Maple Theme"
+  homepage = "https://github.com/example/maple"

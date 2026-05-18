@@ -1,0 +1,75 @@
+{{/* Author Card */}}
+<div class="sidebar-card text-center">
+  {{ $avatar := .Site.Params.avatar | default "" }}
+  {{ $size := " w-28 h-28 " }}
+  {{ if $avatar }}
+  <img src="{{ $avatar | relURL }}" alt="avatar" class="{{ $size }} rounded-full mx-auto mb-3 object-cover" loading="lazy">
+  {{ else }}
+  {{/* Default avatar: initials */}}
+  {{ $initial := substr (.Site.Params.author | default "?") 0 1 }}
+  <div class="{{ $size }} rounded-full mx-auto mb-3 flex items-center justify-center text-3xl font-bold" style="background:var(--tag-bg);color:var(--accent)">{{ $initial }}</div>
+  {{ end }}
+  <h4 class="font-bold text-base" style="color:var(--text)">{{ .Site.Params.author }}</h4>
+  {{ with .Site.Params.bio }}
+  <p class="text-sm mt-1" style="color:var(--text-secondary)">{{ . }}</p>
+  {{ end }}
+  {{/* Social Icons */}}
+  {{ partial "social-icons.html" . }}
+</div>
+
+{{/* Site Stats */}}
+<div class="sidebar-card">
+  <div class="flex justify-around text-center">
+    {{ $postCount := len (where .Site.RegularPages "Section" "in" (slice "posts")) }}
+    <div>
+      <div class="font-bold text-lg" style="color:var(--text)">{{ $postCount }}</div>
+      <div class="text-xs" style="color:var(--muted)">文章</div>
+    </div>
+    <div>
+      <div class="font-bold text-lg" style="color:var(--text)">{{ len .Site.Taxonomies.tags }}</div>
+      <div class="text-xs" style="color:var(--muted)">标签</div>
+    </div>
+    <div>
+      <div class="font-bold text-lg" style="color:var(--text)">{{ len .Site.Taxonomies.categories }}</div>
+      <div class="text-xs" style="color:var(--muted)">分类</div>
+    </div>
+  </div>
+</div>
+
+{{/* Recent Posts */}}
+{{ $recent := where .Site.RegularPages "Section" "in" (slice "posts") | first 5 }}
+<div class="sidebar-card">
+  <h3>📝 最新文章</h3>
+  {{ range $recent }}
+  <a href="{{ .RelPermalink }}" class="sidebar-link truncate">{{ .Title }}</a>
+  {{ end }}
+</div>
+
+{{/* Tags Cloud */}}
+{{ if .Site.Taxonomies.tags }}
+<div class="sidebar-card">
+  <h3>🏷️ 标签</h3>
+  <div class="flex flex-wrap gap-1.5">
+    {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+    {{ $count := len $taxonomy.Pages }}
+    <a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}/" class="tag" style="font-size: {{ add 0.75 (math.Min (math.Floor (div (float $count) 3)) 0.4) }}rem">
+      {{ $name }}
+    </a>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
+
+{{/* Categories */}}
+{{ if .Site.Taxonomies.categories }}
+<div class="sidebar-card">
+  <h3>📂 分类</h3>
+  {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+  {{ $count := len $taxonomy.Pages }}
+  <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}/" class="sidebar-link flex justify-between">
+    <span>{{ $name }}</span>
+    <span style="color:var(--muted)">{{ $count }}</span>
+  </a>
+  {{ end }}
+</div>
+{{ end }}

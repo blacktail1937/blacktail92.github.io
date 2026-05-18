@@ -1,0 +1,62 @@
+{{ define "main" }}
+<div class="container-page py-8">
+  <div class="flex flex-col lg:flex-row gap-8">
+    {{/* Sidebar — on the left */}}
+    <aside class="w-full lg:w-72 shrink-0">
+      {{ partial "sidebar.html" . }}
+    </aside>
+
+    <div class="flex-1 min-w-0">
+      <h1 class="page-title">
+        {{ if eq .Kind "term" }}
+          {{ if eq .Section "tags" }}🏷️{{ else if eq .Section "categories" }}📂{{ end }}
+          {{ .Title }}
+          <span class="text-sm font-normal" style="color:var(--muted)">({{ len .Pages }} 篇)</span>
+        {{ else }}
+          {{ .Title }}
+        {{ end }}
+      </h1>
+
+      {{/* Timeline list for term (tag/category detail) and section pages */}}
+      <div class="timeline">
+        {{ $currentYear := "" }}
+        {{ range .Paginator.Pages }}
+          {{ $year := .Date.Format "2006" }}
+          {{ if ne $year $currentYear }}
+            {{ $currentYear = $year }}
+            <div class="timeline-year">{{ $year }}</div>
+          {{ end }}
+          <div class="timeline-item">
+            <div class="timeline-date">{{ .Date.Format "01-02" }}</div>
+            <div class="flex-1 min-w-0">
+              <a href="{{ .RelPermalink }}" class="timeline-title">{{ .Title }}</a>
+              <div class="timeline-meta">
+                {{ with .Params.categories }}
+                <span>{{ range $i, $c := . }}{{ if $i }} / {{ end }}{{ $c }}{{ end }}</span>
+                <span class="mx-1">·</span>
+                {{ end }}
+                <span>{{ .ReadingTime }} 分钟阅读</span>
+              </div>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+
+      {{ $pag := .Paginator }}
+      {{ if gt $pag.TotalPages 1 }}
+      <div class="pagination">
+        {{ with $pag.Prev }}
+        <a href="{{ .URL }}">← 上一页</a>
+        {{ end }}
+        {{ range $pag.Pagers }}
+        <a href="{{ .URL }}"{{ if eq .PageNumber $pag.PageNumber }} class="active"{{ end }}>{{ .PageNumber }}</a>
+        {{ end }}
+        {{ with $pag.Next }}
+        <a href="{{ .URL }}">下一页 →</a>
+        {{ end }}
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

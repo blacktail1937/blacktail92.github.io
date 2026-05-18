@@ -1,0 +1,72 @@
+{{ define "main" }}
+{{/* Hero Section — background set via inline script in <head> (zero flicker) */}}
+{{ $heroTitle := .Site.Params.hero.title | default .Site.Title }}
+{{ $heroSubtitle := .Site.Params.hero.subtitle | default .Site.Params.description }}
+{{ $hasBg := or .Site.Params.hero.images .Site.Params.hero.background }}
+<section class="hero" id="heroSection">
+  <div class="hero-bg" id="heroBg">
+    <div class="hero-image" id="heroImage"{{ if not $hasBg }} style="display:none"{{ end }}></div>
+  </div>
+  <div class="hero-content">
+    <h1>{{ $heroTitle }}</h1>
+    {{ with $heroSubtitle }}
+    <p id="heroSubtitle" data-text="{{ . }}">{{ . }}</p>
+    {{ end }}
+  </div>
+</section>
+
+<div class="container-page">
+  {{/* Sidebar — on the left */}}
+  <div class="flex flex-col lg:flex-row gap-8">
+    <aside class="w-full lg:w-72 shrink-0">
+      {{ partial "sidebar.html" . }}
+    </aside>
+
+    {{/* Main Content */}}
+    <div class="flex-1 min-w-0">
+      {{ $pages := where .Site.RegularPages "Section" "in" (slice "posts") }}
+      {{ $paginator := .Paginate $pages }}
+
+      <div class="timeline">
+        {{ $currentYear := "" }}
+        {{ range $paginator.Pages }}
+          {{ $year := .Date.Format "2006" }}
+          {{ if ne $year $currentYear }}
+            {{ $currentYear = $year }}
+            <div class="timeline-year">{{ $year }}</div>
+          {{ end }}
+
+          <div class="timeline-item">
+            <div class="timeline-date">{{ .Date.Format "01-02" }}</div>
+            <div class="flex-1 min-w-0">
+              <a href="{{ .RelPermalink }}" class="timeline-title">{{ .Title }}</a>
+              <div class="timeline-meta">
+                {{ with .Params.categories }}
+                <span>{{ range $i, $c := . }}{{ if $i }} / {{ end }}{{ $c }}{{ end }}</span>
+                <span class="mx-1">·</span>
+                {{ end }}
+                <span>{{ .ReadingTime }} 分钟阅读</span>
+              </div>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+
+      {{/* Pagination */}}
+      {{ if gt $paginator.TotalPages 1 }}
+      <div class="pagination">
+        {{ with $paginator.Prev }}
+        <a href="{{ .URL }}">← 上一页</a>
+        {{ end }}
+        {{ range $paginator.Pagers }}
+        <a href="{{ .URL }}"{{ if eq .PageNumber $paginator.PageNumber }} class="active"{{ end }}>{{ .PageNumber }}</a>
+        {{ end }}
+        {{ with $paginator.Next }}
+        <a href="{{ .URL }}">下一页 →</a>
+        {{ end }}
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

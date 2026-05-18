@@ -1,0 +1,43 @@
+{{ define "main" }}
+<div class="container-page py-8">
+  <div class="flex flex-col lg:flex-row gap-8">
+    {{/* Sidebar — on the left */}}
+    <aside class="w-full lg:w-72 shrink-0">
+      {{ partial "sidebar.html" . }}
+    </aside>
+
+    <div class="flex-1 min-w-0">
+      {{ if eq .Section "tags" }}
+      <h1 class="page-title">🏷️ 标签云</h1>
+      <div class="tag-cloud">
+        {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+        {{ $count := len $taxonomy.Pages }}
+        {{ $weight := math.Min (math.Floor (div (float $count) 5)) 5 }}
+        <a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}/" class="tag" style="--weight: {{ $weight }}; font-size: {{ add 0.75 (mul $weight 0.15) }}rem; line-height: 2">
+          {{ $name }} ({{ $count }})
+        </a>
+        {{ end }}
+      </div>
+      {{ else if eq .Section "categories" }}
+      <h1 class="page-title">📂 分类</h1>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+        {{ $count := len $taxonomy.Pages }}
+        <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}/" class="post-card flex items-center justify-between">
+          <span class="font-medium" style="color:var(--text)">{{ $name }}</span>
+          <span class="tag">{{ $count }} 篇</span>
+        </a>
+        {{ end }}
+      </div>
+      {{ else }}
+      <h1 class="page-title">{{ .Title }}</h1>
+      <ul>
+      {{ range .Pages }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
+      </ul>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

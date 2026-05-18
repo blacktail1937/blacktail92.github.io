@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Locale | default "zh-CN" }}" data-theme="{{ if isset .Site.Params "theme" }}{{ .Site.Params.theme }}{{ else }}light{{ end }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff" data-light="#ffffff" data-dark="#1a1a2e">
+  <meta name="description" content="{{ if .Description }}{{ .Description }}{{ else if .IsHome }}{{ .Site.Params.description }}{{ else }}{{ .Summary | plainify | truncate 160 }}{{ end }}">
+  <meta name="author" content="{{ .Site.Params.author }}">
+
+  <meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}">
+  <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta property="og:type" content="{{ if .IsHome }}website{{ else }}article{{ end }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:site_name" content="{{ .Site.Title }}">
+
+  {{ $title := .Title }}
+  {{ if eq .Section "tags" }}  {{ $title = "标签" }}
+  {{ else if eq .Section "categories" }}  {{ $title = "分类" }}
+  {{ else if eq .Section "posts" }}  {{ $title = "归档" }}
+  {{ end }}
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ $title }} | {{ .Site.Title }}{{ end }}</title>
+
+  <link rel="canonical" href="{{ .Permalink }}">
+  {{/* Favicon: custom > avatar > default SVG */}}
+  {{ $favicon := .Site.Params.favicon | default "" }}
+  {{ $favAvatar := .Site.Params.avatar | default "" }}
+  {{ if $favicon }}
+  <link rel="icon" href="{{ $favicon | relURL }}">
+  {{ else if $favAvatar }}
+  <link id="favicon" rel="icon" href="{{ $favAvatar | relURL }}">
+  {{ else }}
+  <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+  {{ end }}
+  <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+
+{{/* Hero background — document.write 在 HTML 解析阶段直接写入 URL，零时机问题 */}}
+{{ if .IsHome }}
+{{/* 注意：不设 default slice，留 nil 以便用 not 判断 */}}
+{{ $heroImages := .Site.Params.hero.images }}
+{{ $heroBg := .Site.Params.hero.background | default "" }}
+{{ $imageDir := .Site.Params.hero.imageDir | default "" }}
+{{/* 扫描目录 */}}
+{{ if and (not $heroImages) (not $heroBg) $imageDir }}
+  {{ $scanDir := print "static" $imageDir }}
+  {{ if (fileExists $scanDir) }}
+    {{ $heroImages = slice }}
+    {{ range (readDir $scanDir) }}
+      {{ if not .IsDir }}
+        {{ $ext := path.Ext .Name }}
+        {{ if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".webp") (eq $ext ".gif") }}
+          {{ $heroImages = $heroImages | append (print $imageDir "/" .Name) }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ else if and (not $heroImages) (not $heroBg) (not $imageDir) }}
+  {{ $defDir := "static/images/hero" }}
+  {{ if (fileExists $defDir) }}
+    {{ $heroImages = slice }}
+    {{ range (readDir $defDir) }}
+      {{ if not .IsDir }}
+        {{ $ext := path.Ext .Name }}
+        {{ if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".webp") (eq $ext ".gif") }}
+          {{ $heroImages = $heroImages | append (print "/images/hero/" .Name) }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ if $heroImages }}
+<script>
+(function(){
+  var images = [
+    {{ range $i, $img := $heroImages }}{{ if $i }},{{ end }}{{ ($img | relURL | jsonify) | safeJS }}{{ end }}
+  ];
+  var idx = Math.floor(Math.random() * images.length);
+  var url = images[idx];
+  // preload
+  var link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = url;
+  document.head.appendChild(link);
+  // appendChild 在 head 解析阶段添加 style，body 渲染时规则已就绪
+  var st = document.createElement('style');
+  st.textContent = '.hero-image{background-image:url(' + url + ')}';
+  document.head.appendChild(st);
+})();
+</script>
+{{ else if $heroBg }}
+{{ $heroUrl := $heroBg }}
+{{ if not (hasPrefix $heroBg "http") }}{{ $heroUrl = $heroBg | relURL }}{{ end }}
+<link rel="preload" as="image" href="{{ $heroUrl }}">
+<style>.hero-image{background-image:url({{ $heroUrl }})}</style>
+{{ end }}
+{{ end }}
+
+  {{ if .IsPage }}
+  {{ if .Params.toc }}
+  <meta name="toc" content="true">
+  {{ end }}
+  {{ end }}
+
+  {{ block "head" . }}{{ end }}
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  {{ partial "header.html" . }}
+
+  <main>
+    {{ block "main" . }}{{ end }}
+  </main>
+
+  {{ partial "footer.html" . }}
+  {{ partial "search-modal.html" . }}
+
+  <!-- Fuse.js for local search -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.js"></script>
+  <script src="{{ "js/main.js" | relURL }}"></script>
+
+  {{ block "scripts" . }}{{ end }}
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Maple Theme Configuration
+# Site-level settings go in the project root hugo.toml
+# This file only contains theme-level module requirements.
+
+[module]
+  [module.hugoVersion]
+    min = "0.146.0"

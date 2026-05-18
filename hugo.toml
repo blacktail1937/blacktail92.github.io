@@ -1,4 +1,114 @@
-baseURL = 'https://blog.blacktail92.online/'
-locale = 'en-us'
-title = '潘多拉'
-theme = ''
+baseURL = "https://blog.blacktail92.online"
+title = "伊甸6号"
+locale = "zh-CN"
+theme = "pandora"
+paginate = 15
+enableRobotsTXT = true
+enableEmoji = true
+
+[author]
+  name = "blacktail92"
+
+[params]
+  description = "Once there was only dark. If you ask me, the light's winning"
+  author = "blacktail92"
+  bio = "这个人很懒，什么都没留下"
+  avatar = "meituan.png"  # e.g. "/images/avatar.jpg"
+
+  # ─── Hero ──────────────────────────────────────────────────
+  # 三种背景方式（优先级从高到低）：
+  #   1. images = ["/images/bg/1.jpg"]  — 手动指定图片列表，刷新随机换
+  #   2. background = "/images/hero.jpg" — 单张固定图
+  #   3. imageDir = "/images/hero"       — 指定目录，自动扫描该目录下所有图片
+  #      如果以上都不设，默认扫描 static/images/hero/
+  # title / subtitle: 覆盖首页标题和副标题
+  [params.hero]
+    # background = ""
+    images = ["/images/hero/wp12408198-borderlands-4k-wallpapers.jpg","/images/hero/wp12408202-borderlands-4k-wallpapers.jpg","/images/hero/wp12408298-borderlands-4k-wallpapers.jpg","/images/hero/wp12408344-borderlands-4k-wallpapers.jpg","/images/hero/wp12408348-borderlands-4k-wallpapers.jpg"]
+    # imageDir = "/images/hero"
+    title = ""
+    subtitle = ""
+
+  # ─── Favicon ────────────────────────────────────────────────
+  # Custom favicon. If empty, uses avatar image (if set), or default SVG.
+  favicon = ""
+
+  # ─── Social Links ──────────────────────────────────────────
+  # Supported icon values:
+  #   github, twitter, zhihu, bilibili, netease, email, wechat, rss
+  #   custom:X — shows letter X as icon (any single char)
+  [[params.social]]
+    name = "GitHub"
+    icon = "github"
+    url = "https://github.com/blacktail1937"
+
+  # [[params.social]]
+  #   name = "知乎"
+  #   icon = "zhihu"
+  #   url = "https://zhihu.com/people/yourname"
+
+  # [[params.social]]
+  #   name = "Bilibili"
+  #   icon = "bilibili"
+  #   url = "https://space.bilibili.com/yourid"
+
+  [[params.social]]
+    name = "邮箱"
+    icon = "email"
+    url = "mailto:wu384234155@gmail.com"
+
+  # ─── Comments (Giscus) ─────────────────────────────────────
+  # 1. Install the Giscus GitHub App in your repo
+  # 2. Go to https://giscus.app to get repoId, category, categoryId
+  # 3. Uncomment and fill in below
+  # [params.comments]
+  #   enable = true
+  #   backend = "giscus"
+  #   [params.comments.giscus]
+  #     repo = "yourname/yourrepo"
+  #     repoId = "R_kgDO..."
+  #     category = "Announcements"
+  #     categoryId = "DIC_kwDO..."
+
+[menu]
+  [[menu.main]]
+    name = "首页"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    name = "归档"
+    url = "/posts/"
+    weight = 2
+  [[menu.main]]
+    name = "标签"
+    url = "/tags/"
+    weight = 3
+  [[menu.main]]
+    name = "分类"
+    url = "/categories/"
+    weight = 4
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+  section = ["HTML", "RSS"]
+  page = ["HTML"]
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    lineNos = false
+    noClasses = false
+    tabWidth = 2
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+    ordered = false
+
+# enableGitInfo = true
+[frontmatter]
+  lastmod = [":fileModTime", "lastmod", "date"]

@@ -1,0 +1,32 @@
+{{/* ─── Comments ────────────────────────────────────────────────
+   Supported backends:
+   - Giscus (recommended): requires repo, repoId, category, categoryId
+     Get these from https://giscus.app
+   ──────────────────────────────────────────────────────────── */}}
+{{ if and .Site.Params.comments .Site.Params.comments.enable }}
+
+{{ if eq .Site.Params.comments.backend "giscus" }}
+{{ $giscus := .Site.Params.comments.giscus }}
+<div class="comments-wrap">
+  <h3>💬 评论</h3>
+  <div id="giscus-container"></div>
+  <script src="https://giscus.app/client.js"
+    data-repo="{{ $giscus.repo }}"
+    data-repo-id="{{ $giscus.repoId }}"
+    data-category="{{ $giscus.category }}"
+    data-category-id="{{ $giscus.categoryId }}"
+    data-mapping="{{ $giscus.mapping | default "pathname" }}"
+    data-strict="{{ $giscus.strict | default "0" }}"
+    data-reactions-enabled="{{ $giscus.reactionsEnabled | default "1" }}"
+    data-emit-metadata="{{ $giscus.emitMetadata | default "0" }}"
+    data-input-position="{{ $giscus.inputPosition | default "top" }}"
+    data-theme="{{ if eq ($giscus.theme | default "preferred_color_scheme") "preferred_color_scheme" }}preferred_color_scheme{{ else }}{{ $giscus.theme }}{{ end }}"
+    data-lang="zh-CN"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async>
+  </script>
+</div>
+{{ end }}
+
+{{ end }}

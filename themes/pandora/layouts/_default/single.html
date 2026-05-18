@@ -1,0 +1,74 @@
+{{ define "main" }}
+<article class="container-page py-8">
+  <div class="flex flex-col lg:flex-row gap-8">
+    {{/* Sidebar: TOC — on the left for desktop */}}
+    {{ if .Params.toc | default true }}
+    <aside class="hidden lg:block lg:order-first w-64 shrink-0">
+      <div class="toc-wrap">
+        <div class="sidebar-card">
+          <h3>📖 目录</h3>
+          {{ .TableOfContents }}
+        </div>
+      </div>
+    </aside>
+    {{ end }}
+
+    {{/* Article Content */}}
+    <div class="flex-1 min-w-0 max-w-4xl">
+      {{/* Post Header */}}
+      <header class="mb-8">
+        <h1 class="text-2xl lg:text-3xl font-bold mb-4" style="color:var(--text)">{{ .Title }}</h1>
+        <div class="flex flex-wrap items-center gap-3 text-sm" style="color:var(--muted)">
+          <span>
+            ✍️ <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>
+            {{ if and .Lastmod (ne .Lastmod .Date) }}
+            <span class="mx-1">·</span>
+            🔄 <time datetime="{{ .Lastmod.Format "2006-01-02" }}">{{ .Lastmod.Format "2006-01-02" }}</time>
+            {{ end }}
+          </span>
+          <span>·</span>
+          <span>{{ .WordCount }} 字</span>
+          <span>·</span>
+          <span>{{ .ReadingTime }} 分钟阅读</span>
+          {{ if .Params.categories }}
+          <span>·</span>
+          <span>
+            📂
+            {{ range $i, $c := .Params.categories }}
+            <a href="{{ "/categories/" | relLangURL }}{{ $c | urlize }}/" class="hover:text-[var(--accent)]">{{ $c }}</a>{{ if lt $i (sub (len $.Params.categories) 1) }}, {{ end }}
+            {{ end }}
+          </span>
+          {{ end }}
+        </div>
+        {{ if .Params.tags }}
+        <div class="flex flex-wrap gap-2 mt-3">
+          {{ range .Params.tags }}
+          <a class="tag" href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/">#{{ . }}</a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </header>
+
+      {{/* Post Content */}}
+      <div class="post-content" id="postContent">
+        {{ .Content }}
+      </div>
+
+      {{/* Post Footer */}}
+      <footer class="mt-12 pt-6 border-t" style="border-color:var(--border)">
+        {{ if .Params.tags }}
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-sm" style="color:var(--muted)">标签：</span>
+          {{ range .Params.tags }}
+          <a class="tag" href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/">#{{ . }}</a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </footer>
+
+      {{/* Comments */}}
+      {{ partial "comments.html" . }}
+    </div>
+  </div>
+</article>
+{{ end }}

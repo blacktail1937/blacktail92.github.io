@@ -1,0 +1,232 @@
+{{- $type := .Get 0 -}}
+{{- $id := .Get 1 -}}
+{{- if not (or (eq $type "book") (eq $type "movie")) -}}
+  {{- errorf "douban shortcode: 第一个参数必须是 'book' 或 'movie'" -}}
+{{- end -}}
+{{- if not $id -}}
+  {{- errorf "douban shortcode: 第二个参数必须是豆瓣数字 ID" -}}
+{{- end -}}
+
+{{- $doubanURL := print "https://" $type ".douban.com/subject/" $id "/" -}}
+
+<div class="douban-card-container" data-type="{{ $type }}" data-id="{{ $id }}" data-url="{{ $doubanURL }}">
+  <div class="douban-card-loading">加载豆瓣信息中…</div>
+</div>
+
+<style>
+  .douban-card-container {
+    max-width: 768px;
+    margin: 1em auto;
+  }
+  .douban-card {
+    display: flex;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25), 0 0 2px rgba(0,0,0,0.25);
+    background: #fff;
+    overflow: hidden;
+    min-height: 200px;
+  }
+  .douban-card-meta {
+    flex: 3;
+    padding: 23px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .douban-card-title {
+    font-size: 22px;
+    margin: 0 0 8px 0;
+  }
+  .douban-card-title a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #0366d6;
+  }
+  .douban-card-rating {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rating-star {
+    display: inline-block;
+    width: 75px;
+    height: 15px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAAClCAYAAAAUAAAYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA5xJREFUeNrs3T9rFEEcxvG7qEQIglaCICKkin9AUEtBKxU7wS61VlYivgWj70TtNFj5BqzE7qxEWwsxKIoYn4UtluFmbm8nczvzm+/BjxyuDwNzu3uXD0+46f7LC5PA45Hm+WTYw1x2LRDc0jzTXB+wqMlsaLPutz8fDFjYZHYauAz3NBvt83XNnyUWNpn1nVm3OsHmsb3EomazzZnVXKMPNcc0xzUnNKc0Rzv/77fms+Z7O3vt9b1eU7bZrNN68l5zcolX4ofmsuZXTdnmMvyi2dR86Bmcac62P6vKrnVubpc0bxYE32nOab45N8YqsvPeDfcD4SOav4HjprPuu+H5BTt9LXDMfNbdLPfT678Fx6vKupt1o/O8+R3pkOaJ5/iktqx7z/qp+aq5q/nY+fczmheaK03Gs7D5rLtZdzSvA6/Ebc2u55j57HQB0TzW7AzkjiKzny6+2hlKNE8juMNcFqKBaIZndRlCNBBNgmx7ZkE0fbLtZkE0EA1EM17WuQwhGogGooFoss6296y52cNO+J6HLJoPaFdbsvA9zGerIxrPh85eWYgGooFoDiQbuAxp0UA0EVmdWbRo+ma1WbRoIBqIZtzsnHdDWjQQDUQD0WSbde5ZS2UhmtqJJtSEiVkXooFoIJre2VATJmZdiKZ2ogk1YSb8oVMvDeUPnSAaiCaPJkzMuhANRAPRQDQpsqEmTMy6EI11oolpwkA0EA1EcyDZmCYMRAPR+LMxTZjqiCamCQPRQDQQzehNGIgGooFoIJpVZ2OaMBBN7USTqgkD0UA0EE3vbKomDERTO9GkasKYJJpUTRiIBqKBaEZvwkA0EA1EA9GkyKZqwkA01olmrCYMRAPRQDR9LkO+0QmiKbAJUyTRjNWEgWggGohm9CYMRAPRQDQQzZDsWE0YiMYC0eTYhIFoIJrKiCbHJgxEY4FocmzCZEs0OTZhIBqIpjKiybEJA9FANBANROPL5tiEgWhKIJoSmzAQDURjjGhKbMJANCUQTYlNmNGIpsQmDEQD0RgjmhKbMBANRAPR1Es0JTZhIJpciMZaEwaigWgKJBprTRiIJheisdaESUo01powEA1EUyDRWGvCQDQQDURjm2isNWEgmlURzWw2q4pZIBqIJkOiCVyGJpkFolkV0ejMMvel28mIRptl7ku3IRqIpjCimfNuaJpZIBqIBqIpm2ice5Z5ZonJupvVkMRu4JW4qXnrOWY++1+AAQBw9BJSCTeN9wAAAABJRU5ErkJggg==);
+    background-repeat: no-repeat;
+  }
+  .rating-star.allstar0 { background-position: 0 0; }
+  .rating-star.allstar1 { background-position: 0 -15px; }
+  .rating-star.allstar2 { background-position: 0 -30px; }
+  .rating-star.allstar3 { background-position: 0 -45px; }
+  .rating-star.allstar4 { background-position: 0 -60px; }
+  .rating-star.allstar5 { background-position: 0 -75px; }
+  .rating-value {
+    color: #e09015;
+    font-weight: 500;
+  }
+  .douban-card-info {
+    font-size: 14px;
+    color: #666;
+    margin: 8px 0;
+  }
+  .douban-card-summary {
+    font-size: 14px;
+    line-height: 1.5;
+    max-height: 75px;
+    overflow: hidden;
+    color: #555;
+  }
+  .douban-card-cover {
+    flex: 1;
+    object-fit: cover;
+    border-radius: 0 15px 15px 0;
+    width: 25%;
+    min-width: 100px;
+  }
+  .douban-card-loading, .douban-card-error {
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 15px;
+  }
+  .douban-card-error a {
+    color: #d32f2f;
+  }
+  @media (max-width: 550px) {
+    .douban-card {
+      flex-direction: column;
+    }
+    .douban-card-cover {
+      width: 100%;
+      height: 160px;
+      border-radius: 0 0 15px 15px;
+    }
+    .douban-card-summary {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // 确保 NeoDB API 相关代码只初始化一次
+  if (typeof window.doubanCardInited === 'undefined') {
+    window.doubanCardInited = true;
+
+    // 提取共用评分转换函数
+    function getRatingStar(rating) {
+        const star = Math.ceil(rating);
+        const starMap = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5};
+        return starMap[Math.min(5, Math.max(0, star))] || 0;
+    }
+
+    // 渲染电影卡片
+    function renderMovieCard(container, data, originalUrl) {
+      const star = getRatingStar(data.rating);
+      // 处理封面图片，防止 NeoDB 返回相对路径
+      let coverUrl = data.cover_image_url;
+      if (coverUrl && coverUrl.startsWith('/')) {
+        coverUrl = 'https://neodb.social' + coverUrl;
+      }
+      // 简介：如果没有 intro，尝试用 brief，如果都没有就用空字符串
+      const intro = (data.intro || data.brief || '').replace(/\s+/g, ' ').substring(0, 200);
+      const html = `
+        <div class="douban-card">
+          <div class="douban-card-meta">
+            <div class="douban-card-title">
+              <a target="_blank" href="${originalUrl}">${escapeHtml(data.title)}</a>
+            </div>
+            <div class="douban-card-rating">
+              <div class="rating-star allstar${star}"></div>
+              <span class="rating-value">${data.rating}</span>
+            </div>
+            <div class="douban-card-info">
+              导演：${escapeHtml(data.director || '未知')} / 类型：${escapeHtml(data.genre || '未知')} / ${data.year || ''}
+            </div>
+            <div class="douban-card-summary">${escapeHtml(intro)}</div>
+          </div>
+          <img class="douban-card-cover" referrerpolicy="no-referrer" loading="lazy" src="${coverUrl}" onerror="this.src='https://placehold.co/150x200?text=No+Cover'">
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    // 渲染书籍卡片
+    function renderBookCard(container, data, originalUrl) {
+      const star = getRatingStar(data.rating);
+      // 处理封面图片，防止 NeoDB 返回相对路径
+      let coverUrl = data.cover_image_url;
+      if (coverUrl && coverUrl.startsWith('/')) {
+        coverUrl = 'https://neodb.social' + coverUrl;
+      }
+      // 简介：如果没有 summary，尝试用 brief，如果都没有就用空字符串
+      const summary = (data.summary || data.brief || '').replace(/\s+/g, ' ').substring(0, 200);
+      const html = `
+        <div class="douban-card">
+          <div class="douban-card-meta">
+            <div class="douban-card-title">
+              <a target="_blank" href="${originalUrl}">${escapeHtml(data.title)}</a>
+            </div>
+            <div class="douban-card-rating">
+              <div class="rating-star allstar${star}"></div>
+              <span class="rating-value">${data.rating}</span>
+            </div>
+            <div class="douban-card-info">
+              作者：${escapeHtml(data.author || '未知')} / 出版：${data.pubdate || ''} / ${data.publisher || ''}
+            </div>
+            <div class="douban-card-summary">${escapeHtml(summary)}</div>
+          </div>
+          <img class="douban-card-cover" referrerpolicy="no-referrer" loading="lazy" src="${coverUrl}" onerror="this.src='https://placehold.co/150x200?text=No+Cover'">
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    function loadCard(container) {
+      const type = container.dataset.type; // 'movie' 或 'book'
+      const id = container.dataset.id;
+      const url = container.dataset.url;
+      const loadingDiv = container.querySelector('.douban-card-loading');
+      if (!loadingDiv) return;
+
+      // 使用 NeoDB 的 fetch API：https://neodb.social/api/catalog/fetch?url=<豆瓣链接>
+      const neoDbApiUrl = `https://neodb.social/api/catalog/fetch?url=https://${type}.douban.com/subject/${id}/`;
+      const storageKey = `neodb_${type}_${id}`;
+
+      const cached = localStorage.getItem(storageKey);
+      if (cached && cached !== 'undefined') {
+        try {
+          const data = JSON.parse(cached);
+          if (type === 'movie') renderMovieCard(container, data, url);
+          else renderBookCard(container, data, url);
+          return;
+        } catch(e) { console.warn('缓存解析失败', e); }
+      }
+
+      fetch(neoDbApiUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.title) {
+            localStorage.setItem(storageKey, JSON.stringify(data));
+            if (type === 'movie') renderMovieCard(container, data, url);
+            else renderBookCard(container, data, url);
+          } else {
+            throw new Error('Invalid data structure');
+          }
+        })
+        .catch(err => {
+          console.error('NeoDB API 请求失败:', err);
+          loadingDiv.innerHTML = `<div class="douban-card-error">加载失败，请检查网络或稍后重试<br><a href="${url}" target="_blank">点击查看豆瓣原文</a></div>`;
+        });
+    }
+
+    // 页面加载完成后扫描所有 douban-card-container
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.douban-card-container').forEach(loadCard);
+      });
+    } else {
+      document.querySelectorAll('.douban-card-container').forEach(loadCard);
+    }
+  }
+</script>

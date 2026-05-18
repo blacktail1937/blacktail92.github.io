@@ -1,0 +1,14 @@
+{
+  "name": "hugo-theme-pandora",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/main.css -o ./static/css/main.css",
+    "watch:css": "tailwindcss -i ./assets/css/main.css -o ./static/css/main.css --watch",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}
