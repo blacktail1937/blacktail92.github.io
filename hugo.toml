@@ -10,10 +10,10 @@ enableEmoji = true
   name = "blacktail92"
 
 [params]
-  description = "Once there was only dark. If you ask me, the light's winning"
+  description = "Once there was only dark. If you ask me, the light's winning."
   author = "blacktail92"
   bio = "这个人很懒，什么都没留下"
-  avatar = "meituan.png"  # e.g. "/images/avatar.jpg"
+  avatar = "avatar/husky3.jpeg"  # e.g. "/images/avatar.jpg"
 
   # ─── Hero ──────────────────────────────────────────────────
   # 三种背景方式（优先级从高到低）：
@@ -24,7 +24,7 @@ enableEmoji = true
   # title / subtitle: 覆盖首页标题和副标题
   [params.hero]
     # background = ""
-    images = ["/images/hero/wp12408198-borderlands-4k-wallpapers.jpg","/images/hero/wp12408202-borderlands-4k-wallpapers.jpg","/images/hero/wp12408298-borderlands-4k-wallpapers.jpg","/images/hero/wp12408344-borderlands-4k-wallpapers.jpg","/images/hero/wp12408348-borderlands-4k-wallpapers.jpg"]
+    # images = ["/images/hero/wp12408198-borderlands-4k-wallpapers.jpg","/images/hero/wp12408202-borderlands-4k-wallpapers.jpg","/images/hero/wp12408298-borderlands-4k-wallpapers.jpg","/images/hero/wp12408344-borderlands-4k-wallpapers.jpg","/images/hero/wp12408348-borderlands-4k-wallpapers.jpg"]
     # imageDir = "/images/hero"
     title = ""
     subtitle = ""

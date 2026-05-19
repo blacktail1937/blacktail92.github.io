@@ -92,7 +92,10 @@
           { name: 'content', weight: 0.2 }
         ],
         threshold: 0.4,
+        ignoreLocation: true,
+        findAllMatches: true,
         includeScore: true,
+        includeMatches: true,
         minMatchCharLength: 1
       })
     } catch (e) {
@@ -108,7 +111,40 @@
       return
     }
 
-    const results = fuse.search(query.trim()).slice(0, 20)
+    var trimmed = query.trim()
+    var results = fuse.search(trimmed).slice(0, 20)
+
+    // 对于中文查询：用字符级匹配补充/修正 Fuse 结果
+    // Fuse 把中文词当整体算编辑距离，分开出现的词会漏掉
+    var queryChars = [...trimmed]
+    var hasChinese = queryChars.some(function(ch) { return ch > '\u2E80' })
+    if (hasChinese && queryChars.length >= 2) {
+      // 对每个候选结果，检查是否每个中文字符都在 (title+content+tags) 里出现过
+      // 没通过检查的降权但不移除（允许 Fuse 的编辑容错）
+      var allData = searchIndex
+      var charMatched = []
+      for (var ci = 0; ci < allData.length; ci++) {
+        var d = allData[ci]
+        var searchText = (d.title || '') + ' ' + (d.content || '') + ' ' + (d.tags || []).join(' ')
+        var allFound = queryChars.every(function(ch) { return searchText.indexOf(ch) >= 0 })
+        if (allFound && !results.some(function(rr) { return rr.item.permalink === d.permalink })) {
+          // 补充 Fuse 遗漏的结果，放在末尾
+          charMatched.push({ item: d, score: 0.5, matches: null })
+        }
+      }
+      results = results.concat(charMatched)
+    }
+
+    // 去重
+    var seen = {}
+    results = results.filter(function(r) {
+      var key = r.item.permalink
+      if (seen[key]) return false
+      seen[key] = true
+      return true
+    })
+
+    results = results.slice(0, 20)
     const items = searchResults.querySelectorAll('.search-result-item')
     items.forEach(el => el.remove())
 
@@ -119,23 +155,42 @@
 
     noResults.style.display = 'none'
 
-    results.forEach(r => {
+    results.forEach(function(r) {
       const item = r.item
       const div = document.createElement('a')
       div.className = 'search-result-item'
       div.href = item.permalink
 
-      // Highlight matched terms
+      // 构建摘要：在内容中找到查询词的位置，显示上下文
+      let excerptText = ''
+      if (item.content && query) {
+        var searchPos = item.content.indexOf(query)
+        if (searchPos >= 0) {
+          var ctxStart = Math.max(0, searchPos - 60)
+          var ctxEnd = Math.min(item.content.length, searchPos + query.length + 90)
+          var before = ctxStart > 0 ? '…' : ''
+          var after = ctxEnd < item.content.length ? '…' : ''
+          excerptText = before + item.content.substring(ctxStart, ctxEnd) + after
+        }
+      }
+      if (!excerptText && item.content) {
+        excerptText = item.content.substring(0, 150)
+      }
+
       const title = highlightMatch(item.title, query)
-      const excerpt = highlightMatch(
-        item.content ? item.content.substring(0, 150) : '',
-        query
-      )
+      const excerpt = highlightMatch(excerptText, query)
+
+      // 标签也高亮匹配
+      var tagsHtml = ''
+      if (item.tags && item.tags.length) {
+        var tagStrs = item.tags.map(function(t) { return highlightMatch(t, query) })
+        tagsHtml = ' · ' + tagStrs.join(', ')
+      }
 
       div.innerHTML = `
         <div class="search-result-title">${title}</div>
-        <div class="search-result-excerpt">${excerpt}${item.content && item.content.length > 150 ? '…' : ''}</div>
-        <div class="search-result-meta">${item.date || ''}${item.tags && item.tags.length ? ' · ' + item.tags.join(', ') : ''}</div>
+        <div class="search-result-excerpt">${excerpt}</div>
+        <div class="search-result-meta">${item.date || ''}${tagsHtml}</div>
       `
       searchResults.appendChild(div)
     })
@@ -600,23 +655,39 @@
   }
 
   // ─── Typewriter Effect for Hero Subtitle ──────────────────
+  // 零重绘版本：用 clip-path + opacity 动画，不改变内容布局
   function initTypewriter() {
     const el = $('#heroSubtitle')
     if (!el) return
     const fullText = el.dataset.text || el.textContent
     if (!fullText) return
 
+    // 保持完整文本，确保布局高度始终不变
+    el.textContent = fullText
+    // 用一个内层 wrap 来控制可见字符
+    // 但更简单：直接用 overflow hidden + 控制宽度/clip
+    // 用 data 存原内容
+
     let timer = null
-    let state = 'typing'  // typing | waiting | erasing
+    let state = 'typing'
     let pos = 0
     const typeSpeed = 100
     const eraseSpeed = 50
     const waitTime = 3000
 
+    // 0 reflow 方案：用一个 blink cursor + 内容始终置为完整文本
+    // 用 opacity 控制可见前缀
+    function updateDisplay() {
+      // 完全用 clip-path 截断，不影响布局
+      const ratio = pos / fullText.length
+      el.style.clipPath = 'inset(0 ' + ((1 - ratio) * 100) + '% 0 0)'
+      el.style.webkitClipPath = 'inset(0 ' + ((1 - ratio) * 100) + '% 0 0)'
+    }
+
     function tick() {
       if (state === 'typing') {
         pos++
-        el.textContent = fullText.substring(0, pos)
+        updateDisplay()
         if (pos >= fullText.length) {
           state = 'waiting'
           clearTimeout(timer)
@@ -626,7 +697,7 @@
         timer = setTimeout(tick, typeSpeed)
       } else if (state === 'erasing') {
         pos--
-        el.textContent = fullText.substring(0, pos)
+        updateDisplay()
         if (pos <= 0) {
           state = 'typing'
           timer = setTimeout(tick, typeSpeed)
@@ -634,16 +705,16 @@
         }
         timer = setTimeout(tick, eraseSpeed)
       } else {
-        // waiting → start erasing
         state = 'erasing'
         timer = setTimeout(tick, eraseSpeed)
       }
     }
 
-    // Start after a short delay
-    el.textContent = ''
+    // 初始状态：全隐藏，光标闪烁
+    pos = 0
+    updateDisplay()
     setTimeout(function () {
-      timer = setTimeout(tick, 300)
+      timer = setTimeout(tick, 500)
     }, 500)
   }
 

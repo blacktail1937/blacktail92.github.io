@@ -7,7 +7,7 @@
     "date": {{ $p.Date.Format "2006-01-02" | jsonify }},
     "tags": {{ if $p.Params.tags }}{{ $p.Params.tags | jsonify }}{{ else }}[]{{ end }},
     "categories": {{ if $p.Params.categories }}{{ $p.Params.categories | jsonify }}{{ else }}[]{{ end }},
-    "content": {{ $p.Plain | truncate 500 | jsonify }}
+    "content": {{ $p.Plain | jsonify }}
   }
   {{- end -}}
 ]

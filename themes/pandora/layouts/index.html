@@ -2,7 +2,8 @@
 {{/* Hero Section — background set via inline script in <head> (zero flicker) */}}
 {{ $heroTitle := .Site.Params.hero.title | default .Site.Title }}
 {{ $heroSubtitle := .Site.Params.hero.subtitle | default .Site.Params.description }}
-{{ $hasBg := or .Site.Params.hero.images .Site.Params.hero.background }}
+{{/* 通过 Scratch 拿到 baseof.html 里扫描/配置后的值，避免 define 作用域隔离 */}}
+{{ $hasBg := .Scratch.Get "pandora_hero_bg" }}
 <section class="hero" id="heroSection">
   <div class="hero-bg" id="heroBg">
     <div class="hero-image" id="heroImage"{{ if not $hasBg }} style="display:none"{{ end }}></div>

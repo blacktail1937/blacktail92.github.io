@@ -524,7 +524,7 @@ a:hover {
 }
 .hero {
   position: relative;
-  min-height: 14rem;
+  min-height: 15rem;
   padding: 5rem 1.5rem 3.5rem;
   text-align: center;
   color: white;
@@ -544,6 +544,8 @@ a:hover {
   background-position: center;
   background-repeat: no-repeat;
   opacity: 1;
+  will-change: transform;
+  transform: translateZ(0);
 }
 .hero-bg::after {
   content: '';
@@ -555,6 +557,7 @@ a:hover {
 .hero-content {
   position: relative;
   z-index: 1;
+  min-height: 4rem;
 }
 .hero h1 {
   font-size: 2.25rem;
@@ -562,10 +565,30 @@ a:hover {
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
-.hero p {
+#heroSubtitle {
   font-size: 1.05rem;
   opacity: 0.95;
   text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  position: relative;
+}
+#heroSubtitle::after {
+  content: '|';
+  position: absolute;
+  right: -0.4em;
+  top: 0;
+  color: rgba(255,255,255,0.8);
+  animation: cursor-blink 0.8s step-end infinite;
+}
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 .timeline {
   position: relative;

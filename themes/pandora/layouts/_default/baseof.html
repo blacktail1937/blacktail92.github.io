@@ -67,6 +67,8 @@
     {{ end }}
   {{ end }}
 {{ end }}
+{{/* 跨模板传递：index.html 的 define 块看不到上面的 $heroImages，用 Scratch 桥接 */}}
+{{ .Scratch.Set "pandora_hero_bg" (or $heroImages $heroBg) }}
 {{ if $heroImages }}
 <script>
 (function(){
